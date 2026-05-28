@@ -620,7 +620,7 @@ def home():
 
 <head>
 
-<title>AI Smart Stock Screening Agent</title>
+<title>AI Smart Stock Screening Agent By Subrat Dash</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -731,7 +731,7 @@ background:#111827;
 
 <div class="container">
 
-<h1>AI Smart Stock Screening Agent</h1>
+<h1>AI Smart Stock Screening Agent By Subrat Dash</h1>
 
 <div class="search-box">
 
