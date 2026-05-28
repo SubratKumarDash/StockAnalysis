@@ -1,0 +1,3 @@
+passenger_id,first_name,last_name,email,phone_number,passport_number,flight_number,departure_city,destination_city,departure_date,seat_number,ticket_price
+1,Rahul,Sharma,rahul.sharma@gmail.com,9876543210,G1234567,AI101,Delhi,Mumbai,2022-01-01,17A,2500.0
+2,Priya,Jain,priya.jain@yahoo.com,7418529630,G7654321,AI102,Bangalore,Chennai,2022-01-15,23C,3000.0

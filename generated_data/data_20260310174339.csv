@@ -1,0 +1,5 @@
+customer_id,first_name,last_name,email,phone_number,address,city,country,order_id,product_name,product_category,price,order_date,payment_method
+170405,Vicki,Phillips,bellluis@example.com,6781115782135,"39204 Thomas Ville
+Jonesmouth, PW 25034",Cookstad,Suriname,700185,simply,Sports,46761.67,1984-04-02,Cash
+184829,Miguel,Fisher,matthew59@example.com,2009241663316,"92284 Duke Isle Suite 996
+South Gabriel, NH 03907",Parksport,British Virgin Islands,531519,administration,Fashion,22531.98,1992-11-02,Credit Card

@@ -1,0 +1,6 @@
+employee_id,first_name,last_name,email,phone_number,city,country,company,project_name,role,technology,experience_years,salary
+546453,Kyle,Smith,william23@example.net,4419886064250,Jasonmouth,United Kingdom,Harper PLC,Digital Banking,Manager,Python,9,74742
+988916,Emily,Beck,millerchristopher@example.com,6812381446608,Port Kennethtown,Liechtenstein,"Swanson, Hernandez and Hernandez",AI Platform,Manager,Go,4,31526
+496717,Mary,Pierce,hschneider@example.net,3505177623772,Jonesfort,Korea,Tyler-Vazquez,AI Platform,Architect,Java,1,169614
+755925,Debbie,King,brad09@example.com,8712985327086,Port Juliefort,Germany,Chang-Levy,Ecommerce Revamp,Developer,Go,5,97768
+178244,Nicole,Glover,prattevan@example.com,9984131392940,Jasonside,Macao,Gonzales-Lee,AI Platform,Tester,JavaScript,8,155181

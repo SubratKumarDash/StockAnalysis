@@ -1,0 +1,3 @@
+customer_id,first_name,last_name,email,phone_number,city,country,car_brand,car_model,purchase_date,price,dealer_name
+849584,Cody,Bartlett,zrichards@example.org,0511062478649,Conleymouth,Guadeloupe,Audi,NA672,1976-05-07,17157.0,"Adams, Steele and Schmitt"
+970079,Scott,Mitchell,lauracline@example.org,4841919834093,Port Markton,Marshall Islands,Honda,nU762,1992-07-02,18027.24,Odom-Garcia

@@ -1,0 +1,30 @@
+[
+  {
+    "passenger_id":1,
+    "first_name":"Emily",
+    "last_name":"Chen",
+    "email":"emilychen@example.com",
+    "phone_number":"1234567890",
+    "passport_number":"AB123456",
+    "flight_number":"AA101",
+    "departure_city":"New York",
+    "destination_city":"Los Angeles",
+    "departure_date":"2022-01-01",
+    "seat_number":"17A",
+    "ticket_price":250.0
+  },
+  {
+    "passenger_id":2,
+    "first_name":"David",
+    "last_name":"Lee",
+    "email":"davidlee@example.com",
+    "phone_number":"9876543210",
+    "passport_number":"CD789012",
+    "flight_number":"UA202",
+    "departure_city":"Chicago",
+    "destination_city":"Houston",
+    "departure_date":"2022-01-15",
+    "seat_number":"23B",
+    "ticket_price":300.0
+  }
+]

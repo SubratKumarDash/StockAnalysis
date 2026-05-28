@@ -1,0 +1,3 @@
+customer_id,first_name,last_name,email,phone_number,account_number,account_type,branch_name,city,country,balance
+1,Emily,Chen,emily.chen@example.com,1234567890,1234567890,Savings,Main Branch,New York,USA,1000.0
+2,David,Lee,david.lee@example.com,9876543210,9876543210,Checking,Downtown Branch,Los Angeles,USA,500.0

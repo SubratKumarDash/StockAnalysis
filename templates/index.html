@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Dynamic Test Data Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #0a0e1a;
+            --panel:     #0f1628;
+            --border:    #1e2d50;
+            --accent:    #2979ff;
+            --accent2:   #00e5ff;
+            --success:   #00c853;
+            --danger:    #ff1744;
+            --warn:      #ffd600;
+            --mix:       #aa00ff;
+            --text:      #e8eaf6;
+            --muted:     #546e9a;
+            --input-bg:  #141c30;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 32px;
+            background: var(--panel);
+            border-bottom: 1px solid var(--border);
+        }
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: var(--accent2);
+            box-shadow: 0 0 8px var(--accent2);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity:1; } 50% { opacity:0.4; }
+        }
+        .brand-name {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text);
+        }
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .user-chip {
+            font-size: 12px;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            letter-spacing: 1px;
+        }
+        .user-chip span { color: var(--accent2); }
+        .logout-btn {
+            padding: 6px 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 11px;
+            font-family: 'IBM Plex Mono', monospace;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+        /* ── MAIN LAYOUT ── */
+        .main { display: flex; flex: 1; }
+
+        /* ── LEFT SIDEBAR ── */
+        .sidebar {
+            width: 220px;
+            min-width: 220px;
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            padding: 24px 0;
+        }
+        .sidebar-section { padding: 0 16px; margin-bottom: 24px; }
+        .sidebar-label {
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            padding: 0 8px;
+            margin-bottom: 8px;
+        }
+        .mode-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid transparent;
+            transition: all 0.15s;
+            user-select: none;
+        }
+        .mode-card:hover { background: rgba(255,255,255,0.04); }
+        .mode-card.active { background: rgba(41,121,255,0.1); border-color: var(--accent); }
+        .mode-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .mode-card[data-mode="Valid"] .mode-dot     { background: var(--success); }
+        .mode-card[data-mode="Boundary"] .mode-dot  { background: var(--warn); }
+        .mode-card[data-mode="Negative"] .mode-dot  { background: var(--danger); }
+        .mode-card[data-mode="Mix"] .mode-dot        { background: var(--mix); }
+
+        .divider { height: 1px; background: var(--border); margin: 0 16px 24px; }
+
+        .schema-preset {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: var(--muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+            border: 1px solid transparent;
+        }
+        .schema-preset:hover {
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        /* ── CENTER CONTENT ── */
+        .content { flex: 1; padding: 28px 32px; overflow-y: auto; }
+        .page-title {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            margin-bottom: 20px;
+        }
+
+        /* ── CARDS ── */
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent2);
+            font-family: 'IBM Plex Mono', monospace;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title::before {
+            content: '';
+            width: 3px; height: 12px;
+            background: var(--accent2);
+            display: inline-block;
+            border-radius: 2px;
+        }
+
+        .form-row { display: flex; gap: 16px; margin-bottom: 16px; }
+        .form-group { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { flex: 1 1 100%; }
+
+        label {
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        input[type="number"], select, textarea {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 9px 12px;
+            font-size: 13px;
+            font-family: 'IBM Plex Sans', sans-serif;
+            border-radius: 4px;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.15s;
+        }
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus { border-color: var(--accent); }
+        textarea {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            resize: vertical;
+            min-height: 180px;
+            line-height: 1.6;
+        }
+        select option { background: var(--panel); }
+        #mode-select { display: none; }
+
+        /* ── MODE TAGS ── */
+        .mode-indicator { display: flex; gap: 8px; margin: 0; }
+        .mode-tag {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 600;
+            letter-spacing: 1px;
+            border: 1px solid;
+            cursor: pointer;
+            transition: all 0.15s;
+            opacity: 0.4;
+        }
+        .mode-tag.active { opacity: 1; }
+        .mode-tag.valid    { border-color: var(--success); color: var(--success); }
+        .mode-tag.valid.active    { background: rgba(0,200,83,0.12); }
+        .mode-tag.boundary { border-color: var(--warn);    color: var(--warn); }
+        .mode-tag.boundary.active { background: rgba(255,214,0,0.12); }
+        .mode-tag.negative { border-color: var(--danger);  color: var(--danger); }
+        .mode-tag.negative.active { background: rgba(255,23,68,0.12); }
+        .mode-tag.mix      { border-color: var(--mix);     color: var(--mix); }
+        .mode-tag.mix.active      { background: rgba(170,0,255,0.12); }
+
+        /* ── GENERATE BTN ── */
+        .generate-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            border: none;
+            color: white;
+            font-size: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .generate-btn:hover {
+            background: #1565c0;
+            box-shadow: 0 0 20px rgba(41,121,255,0.3);
+        }
+        .generate-btn:active { transform: scale(0.99); }
+
+        /* ── RESULT PANEL ── */
+        .result-panel {
+            background: var(--panel);
+            border: 1px solid var(--success);
+            border-radius: 6px;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity:0; transform: translateY(-8px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+        .result-info { display: flex; align-items: center; gap: 12px; }
+        .result-icon {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: rgba(0,200,83,0.15);
+            border: 1px solid var(--success);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+        }
+        .result-text strong {
+            display: block;
+            font-size: 13px;
+            color: var(--success);
+            margin-bottom: 2px;
+        }
+        .result-text span {
+            font-size: 11px;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .download-btn {
+            padding: 9px 24px;
+            background: var(--success);
+            border: none;
+            color: white;
+            font-size: 11px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .download-btn:hover {
+            background: #00a844;
+            box-shadow: 0 0 16px rgba(0,200,83,0.3);
+        }
+
+        /* ── ERROR ── */
+        .error-panel {
+            background: rgba(255,23,68,0.08);
+            border: 1px solid var(--danger);
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 12px;
+            color: var(--danger);
+            font-family: 'IBM Plex Mono', monospace;
+            margin-bottom: 16px;
+        }
+
+        /* ── RIGHT PANEL ── */
+        .right-panel {
+            width: 200px;
+            min-width: 200px;
+            background: var(--panel);
+            border-left: 1px solid var(--border);
+            padding: 24px 16px;
+        }
+        .stat-label {
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            margin-bottom: 12px;
+        }
+        .stat-item { margin-bottom: 16px; }
+        .stat-name {
+            font-size: 10px;
+            color: var(--muted);
+            margin-bottom: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .stat-bar-bg {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        .stat-bar { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+        .stat-val {
+            font-size: 10px;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .field-count {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--accent2);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .field-count-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+        .divider-h { height: 1px; background: var(--border); margin: 16px 0; }
+
+        .schema-helper {
+            font-size: 10px;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            line-height: 1.8;
+            margin-top: 6px;
+        }
+        .schema-helper span { color: var(--accent2); }
+    </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+    <div class="topbar-brand">
+        <div class="brand-dot"></div>
+        <span class="brand-name">Dynamic Test Data Generator</span>
+    </div>
+    <div class="topbar-right">
+        <span class="user-chip">session: <span>{{ username }}</span></span>
+        <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-label">Test Mode</div>
+            <div class="mode-card active" data-mode="Valid"    onclick="selectMode('Valid', this)">
+                <div class="mode-dot"></div> ✓ Valid
+            </div>
+            <div class="mode-card" data-mode="Boundary"  onclick="selectMode('Boundary', this)">
+                <div class="mode-dot"></div> ⊘ Boundary
+            </div>
+            <div class="mode-card" data-mode="Negative"  onclick="selectMode('Negative', this)">
+                <div class="mode-dot"></div> ✕ Negative
+            </div>
+            <div class="mode-card" data-mode="Mix"       onclick="selectMode('Mix', this)">
+                <div class="mode-dot"></div> ⊕ Mix
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="sidebar-section">
+            <div class="sidebar-label">Schema Presets</div>
+            <div class="schema-preset" onclick="loadPreset('banking')">🏦 Banking</div>
+            <div class="schema-preset" onclick="loadPreset('customer')">👤 Customer</div>
+            <div class="schema-preset" onclick="loadPreset('transaction')">💳 Transaction</div>
+            <div class="schema-preset" onclick="loadPreset('loan')">📋 Loan</div>
+        </div>
+    </div>
+
+    <!-- CENTER CONTENT -->
+    <div class="content">
+        <div class="page-title"><h2>Generate Test Data</h2></div>
+
+        {% if download_link %}
+        <div class="result-panel">
+            <div class="result-info">
+                <div class="result-icon">✓</div>
+                <div class="result-text">
+                    <strong>File Generated Successfully</strong>
+                    <span>CSV ready for download</span>
+                </div>
+            </div>
+            <a href="{{ download_link }}" class="download-btn">⬇ Download CSV</a>
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="error-panel">⚠ {{ error }}</div>
+        {% endif %}
+
+        <form method="post" action="/generate">
+            <select name="mode" id="mode-select">
+                <option value="Valid">Valid</option>
+                <option value="Boundary">Boundary</option>
+                <option value="Negative">Negative</option>
+                <option value="Mix">Mix</option>
+            </select>
+
+            <div class="card">
+                <div class="card-title">Configuration</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Number of Records</label>
+                        <input type="number" name="records" id="records-input" value="5" min="1" max="10000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Selected Mode</label>
+                        <div class="mode-indicator">
+                            <span class="mode-tag valid active"  id="tag-Valid"    onclick="selectMode('Valid', null)">✓ Valid</span>
+                            <span class="mode-tag boundary"      id="tag-Boundary" onclick="selectMode('Boundary', null)">⊘ Bound</span>
+                            <span class="mode-tag negative"      id="tag-Negative" onclick="selectMode('Negative', null)">✕ Neg</span>
+                            <span class="mode-tag mix"           id="tag-Mix"      onclick="selectMode('Mix', null)">⊕ Mix</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Schema Definition</div>
+                <div class="form-group full">
+                    <label>JSON Schema</label>
+                    <textarea name="schema" id="schema-input" rows="12">{
+  "customer_id":   "customer_id",
+  "full_name":     "name",
+  "email":         "email",
+  "phone":         "phone",
+  "pan_no":        "pan",
+  "aadhar_no":     "aadhar",
+  "account_no":    "account_no",
+  "ifsc_code":     "ifsc",
+  "balance":       "balance",
+  "cibil_score":   "cibil",
+  "txn_id":        "txn_id",
+  "txn_amount":    "amount",
+  "txn_type":      "choice:NEFT,RTGS,IMPS,UPI",
+  "kyc_status":    "choice:Verified,Pending,Rejected",
+  "loan_status":   "choice:Active,Closed,NPA,Rejected"
+}</textarea>
+                    <div class="schema-helper">
+                        Types: <span>int</span> · <span>float</span> · <span>name</span> · <span>email</span> · <span>phone</span> · <span>pan</span> · <span>aadhar</span> · <span>account_no</span> · <span>ifsc</span> · <span>balance</span> · <span>amount</span> · <span>cibil</span> · <span>txn_id</span> · <span>loan_id</span> · <span>customer_id</span> · <span>interest_rate</span> · <span>tenure_months</span> · <span>date_past</span> · <span>date_future</span> · <span>uuid</span> · <span>choice:A,B,C</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="generate-btn" onclick="this.innerText='⟳  Generating...'">
+                ▶  Generate CSV
+            </button>
+        </form>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+        <div class="stat-label">Schema Stats</div>
+        <div class="stat-item">
+            <div class="field-count" id="field-count">15</div>
+            <div class="field-count-label">Fields defined</div>
+        </div>
+        <div class="divider-h"></div>
+        <div class="stat-label">Field Coverage</div>
+        <div class="stat-item">
+            <div class="stat-name">Identity</div>
+            <div class="stat-bar-bg"><div class="stat-bar" id="bar-identity" style="width:0%; background:#2979ff;"></div></div>
+            <div class="stat-val" id="val-identity">—</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-name">Financial</div>
+            <div class="stat-bar-bg"><div class="stat-bar" id="bar-financial" style="width:0%; background:#00e5ff;"></div></div>
+            <div class="stat-val" id="val-financial">—</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-name">Transaction</div>
+            <div class="stat-bar-bg"><div class="stat-bar" id="bar-transaction" style="width:0%; background:#aa00ff;"></div></div>
+            <div class="stat-val" id="val-transaction">—</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-name">Choice fields</div>
+            <div class="stat-bar-bg"><div class="stat-bar" id="bar-choice" style="width:0%; background:#ffd600;"></div></div>
+            <div class="stat-val" id="val-choice">—</div>
+        </div>
+        <div class="divider-h"></div>
+        <div class="stat-label">Record Count</div>
+        <div class="stat-item">
+            <div class="field-count" id="records-display">5</div>
+            <div class="field-count-label">to generate</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function selectMode(mode, sidebarCard) {
+        document.getElementById('mode-select').value = mode;
+        document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+        const card = sidebarCard || document.querySelector(`.mode-card[data-mode="${mode}"]`);
+        if (card) card.classList.add('active');
+        document.querySelectorAll('.mode-tag').forEach(t => t.classList.remove('active'));
+        const tag = document.getElementById(`tag-${mode}`);
+        if (tag) tag.classList.add('active');
+    }
+
+    const presets = {
+        banking: `{\n  "customer_id":   "customer_id",\n  "full_name":     "name",\n  "email":         "email",\n  "phone":         "phone",\n  "pan_no":        "pan",\n  "aadhar_no":     "aadhar",\n  "account_no":    "account_no",\n  "ifsc_code":     "ifsc",\n  "balance":       "balance",\n  "cibil_score":   "cibil",\n  "txn_id":        "txn_id",\n  "txn_amount":    "amount",\n  "txn_type":      "choice:NEFT,RTGS,IMPS,UPI",\n  "kyc_status":    "choice:Verified,Pending,Rejected",\n  "loan_status":   "choice:Active,Closed,NPA,Rejected"\n}`,
+        customer: `{\n  "customer_id":  "customer_id",\n  "full_name":    "name",\n  "email":        "email",\n  "phone":        "phone",\n  "pan_no":       "pan",\n  "aadhar_no":    "aadhar",\n  "gender":       "choice:Male,Female,Other",\n  "kyc_status":   "choice:Verified,Pending,Rejected",\n  "dob":          "date_past"\n}`,
+        transaction: `{\n  "txn_id":       "txn_id",\n  "account_no":   "account_no",\n  "txn_amount":   "amount",\n  "txn_type":     "choice:NEFT,RTGS,IMPS,UPI",\n  "txn_date":     "date_past",\n  "currency":     "choice:INR,USD,EUR",\n  "txn_status":   "choice:Success,Failed,Pending,Reversed",\n  "ifsc_code":    "ifsc"\n}`,
+        loan: `{\n  "loan_id":       "loan_id",\n  "customer_id":   "customer_id",\n  "loan_type":     "choice:Home Loan,Car Loan,Personal Loan,Education Loan",\n  "principal":     "float",\n  "interest_rate": "interest_rate",\n  "tenure_months": "tenure_months",\n  "cibil_score":   "cibil",\n  "loan_status":   "choice:Active,Closed,NPA,Rejected"\n}`
+    };
+
+    function loadPreset(name) {
+        document.getElementById('schema-input').value = presets[name];
+        analyzeSchema();
+    }
+
+    const identityTypes    = ['name','email','phone','pan','aadhar','customer_id','uuid','gender'];
+    const financialTypes   = ['balance','amount','float','int','interest_rate','cibil','principal','tenure_months'];
+    const transactionTypes = ['txn_id','txn_type','txn_date','txn_status','date_past','date_future','account_no','ifsc','loan_id','loan_type','loan_status'];
+
+    function analyzeSchema() {
+        try {
+            const schema = JSON.parse(document.getElementById('schema-input').value);
+            const fields = Object.values(schema);
+            const total  = fields.length;
+            let identity=0, financial=0, transaction=0, choice=0;
+            fields.forEach(f => {
+                if (identityTypes.some(t => f === t))    identity++;
+                if (financialTypes.some(t => f === t))   financial++;
+                if (transactionTypes.some(t => f === t)) transaction++;
+                if (f.startsWith('choice:'))              choice++;
+            });
+            document.getElementById('field-count').textContent = total;
+            setBar('identity',    identity,    total, identity + ' fields');
+            setBar('financial',   financial,   total, financial + ' fields');
+            setBar('transaction', transaction, total, transaction + ' fields');
+            setBar('choice',      choice,      total, choice + ' fields');
+        } catch(e) {
+            document.getElementById('field-count').textContent = '—';
+        }
+    }
+
+    function setBar(id, val, total, label) {
+        const pct = total > 0 ? Math.round((val/total)*100) : 0;
+        document.getElementById('bar-'+id).style.width = pct + '%';
+        document.getElementById('val-'+id).textContent = label + ' (' + pct + '%)';
+    }
+
+    document.getElementById('records-input').addEventListener('input', function() {
+        document.getElementById('records-display').textContent = this.value || '0';
+    });
+
+    document.getElementById('schema-input').addEventListener('input', analyzeSchema);
+    analyzeSchema();
+</script>
+</body>
+</html>
